@@ -66,5 +66,4 @@ def Imputeallcolumns_onehotcategorical(df,categ_columns = None ,continouscolumns
             print("Col median for var 12 is",col_median)
         df[col]= df[col].fillna(col_median)
         #df[col].replace({'NaN': col_median} ,inplace=True)
-        
     return df 
