@@ -31,4 +31,40 @@ def include_with_substr(Keyword,List,case_sensitive=False):
                 Returnlist.append(item)
     
     return Returnlist
-            
+      
+#Using a simple strategy to one hot encode categories given a df 
+
+def Imputeallcolumns_onehotcategorical(df,categ_columns = None ,continouscolumns = None):
+    '''
+    Function to Impute Cagtegorical columns in a dataframe with mode values 
+    This function also one hot encodes categorical columns 
+    df : pandas dataframe
+    categ_columns : Categorical column names
+    continouscolumns : Continous Column names
+    
+    '''
+    verbose=False
+    ##Categorical variables
+    for col in categ_columns:
+        col_mode=df[col].value_counts().index[0] #Calculate the mode of categorical variable 
+        #Impute with categorical mode next line
+        df[col].fillna(col_mode, inplace=True)
+        #one hot encoding categorical variables below
+        if(verbose):
+            print("One hot encdoing the column",col)
+        prefixname = 'one_hot_'+ col
+        
+        df = pd.concat([df,pd.get_dummies(df[col], prefix= prefixname ,dummy_na=False)],axis=1).drop([col],axis=1)
+
+    ##Continous variables
+    for col in continouscolumns:
+        if(verbose):
+            print("Imputing the continous Col: ",col)
+        df[col] = pd.to_numeric(df[col], downcast="float")
+        col_median =df[col].median(skipna=True ) #Calculate the mode of categorical variable 
+        if(col == 'var12'):
+            print("Col median for var 12 is",col_median)
+        df[col]= df[col].fillna(col_median)
+        #df[col].replace({'NaN': col_median} ,inplace=True)
+        
+    return df 
