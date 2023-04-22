@@ -6,6 +6,51 @@ Created on Fri Jul 10 09:06:36 2020
 """
 
 
+def describe_more(df,normalize_ind=False, weight_column=None, skip_columns=[], dropna=True):
+    """"
+    Purpose: Analyze input Pandas DataFrame and return stats per column
+    Details: The function calculates levels for categorical variables and allows to analyze summarized information
+
+    To view wide table set following Pandas options:
+    pd.set_option('display.width', 1000)
+    pd.set_option('max_colwidth',200)
+    
+    """
+    var = [] ; l = [] ; t = []; unq =[]; min_l = []; max_l = [];
+    assert isinstance(skip_columns, list), "Argument skip_columns should be list"
+    if weight_column is not None:
+        if weight_column not in list(df.columns):
+            raise AssertionError('weight_column is not a valid column name in the input DataFrame')
+      
+    for x in df:
+        if x in skip_columns:
+            pass
+        else:
+            var.append( x )
+            uniq_counts = len(pd.value_counts(df[x],dropna=dropna))
+            uniq_counts = len(pd.value_counts(df[x], dropna=dropna)[pd.value_counts(df[x],dropna=dropna)>0])
+            l.append(uniq_counts)
+            t.append( df[ x ].dtypes )
+            min_l.append(df[x].apply(str).str.len().min())
+            max_l.append(df[x].apply(str).str.len().max())
+            if weight_column is not None and x not in skip_columns:
+                df2 = df.groupby(x).agg({weight_column: 'sum'}).sort_values(weight_column, ascending=False)
+                df2['authtrans_vts_cnt']=((df2[weight_column])/df2[weight_column].sum()).round(2)
+                unq.append(df2.head(n=100).to_dict()[weight_column])
+            else:
+                df_cat_d = df[x].value_counts(normalize=normalize_ind,dropna=dropna).round(decimals=2)
+                df_cat_d = df_cat_d[df_cat_d>0]
+                #unq.append(df[x].value_counts().iloc[0:100].to_dict())
+                unq.append(df_cat_d.iloc[0:100].to_dict())
+            
+    levels = pd.DataFrame( { 'A_Variable' : var , 'Levels' : l , 'Datatype' : t ,
+                             'Min Length' : min_l,
+                             'Max Length': max_l,
+                             'Level_Values' : unq} )
+    #levels.sort_values( by = 'Levels' , inplace = True )
+    return levels
+
+
 def include_with_substr(Keyword,List,case_sensitive=False):
     '''
     This functions returns all words in the list with the Keyword specified . 
