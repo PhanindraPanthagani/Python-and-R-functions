@@ -5,6 +5,31 @@ Created on Fri Jul 10 09:06:36 2020
 @author: Phanindra.Panthagani
 """
 
+import pandas as pd
+
+def value_counts_PP(pdSeries):
+    """
+    Enhancement of value counts function to include the percentages
+
+    Author : @ Phanindra Panthagani
+
+    input : pdSeries 
+    output : result_df which is an output dataframe consisting of value_counts and percentage
+    """
+
+    # Get the value counts
+    value_counts = pdSeries.value_counts()
+    
+    # Calculate the percentage
+    percentage = (value_counts / len(pdSeries)) * 100
+    
+    # Combine value counts and percentage into a DataFrame
+    result_df = pd.DataFrame({'Count': value_counts, 'Percentage': percentage})
+    
+    return result_df
+
+
+
 
 def describe_more(df,normalize_ind=False, weight_column=None, skip_columns=[], dropna=True):
     """"
